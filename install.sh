@@ -14,7 +14,7 @@ get_url()
     FROM=$1
     TO=$2
     case $FROM in
-        http*)
+        ftp*|http*|tftp*)
             curl -o $TO -fL ${FROM}
             ;;
         *)
@@ -45,7 +45,7 @@ usage()
 {
     echo "Usage: $PROG [--force-efi] [--debug] [--tty TTY] [--poweroff] [--takeover] [--no-format] [--config https://.../config.yaml] DEVICE ISO_URL"
     echo ""
-    echo "Example: $PROG /dev/vda https://github.com/rancher/k3os/releases/download/v0.2.0/k3os.iso"
+    echo "Example: $PROG /dev/vda https://github.com/rancher/k3os/releases/download/v0.8.0/k3os.iso"
     echo ""
     echo "DEVICE must be the disk that will be partitioned (/dev/vda). If you are using --no-format it should be the device of the K3OS_STATE partition (/dev/vda2)"
     echo ""
@@ -73,14 +73,15 @@ do_format()
         BOOT_NUM=1
         STATE_NUM=2
         parted -s ${DEVICE} mkpart primary fat32 0% 50MB
-        parted -s ${DEVICE} mkpart primary ext4 50MB 550MB
+        parted -s ${DEVICE} mkpart primary ext4 50MB 750MB
     else
         BOOT_NUM=
         STATE_NUM=1
-        parted -s ${DEVICE} mkpart primary ext4 0% 500MB
+        parted -s ${DEVICE} mkpart primary ext4 0% 700MB
     fi
     parted -s ${DEVICE} set 1 ${BOOTFLAG} on
-    partprobe 2>/dev/null || true
+    partprobe ${DEVICE} 2>/dev/null || true
+    sleep 2
 
     PREFIX=${DEVICE}
     if [ ! -e ${PREFIX}${STATE_NUM} ]; then
@@ -116,7 +117,7 @@ do_mount()
     fi
 
     mkdir -p $DISTRO
-    mount -t iso9660 -o ro $ISO_DEVICE $DISTRO
+    mount -o ro $ISO_DEVICE $DISTRO
 }
 
 do_copy()
@@ -133,6 +134,10 @@ do_copy()
 
     if [ "$K3OS_INSTALL_TAKE_OVER" = "true" ]; then
         touch ${TARGET}/k3os/system/takeover
+
+        if [ "$K3OS_INSTALL_POWER_OFF" = true ] || grep -q 'k3os.install.power_off=true' /proc/cmdline; then
+            touch ${TARGET}/k3os/system/poweroff
+        fi
     fi
 }
 
@@ -201,7 +206,7 @@ get_iso()
     if [ -z "${ISO_DEVICE}" ]; then
         for i in $(lsblk -o NAME,TYPE -n | grep -w disk | awk '{print $1}'); do
             mkdir -p ${DISTRO}
-            if mount -t iso9660 -o ro /dev/$i ${DISTRO}; then
+            if mount -o ro /dev/$i ${DISTRO}; then
                 ISO_DEVICE="/dev/$i"
                 umount ${DISTRO}
                 break
@@ -257,6 +262,11 @@ validate_device()
         echo "You should use an available device. Device ${DEVICE} does not exist."
         exit 1
     fi
+}
+
+create_opt()
+{
+    mkdir -p "${TARGET}/k3os/data/opt"
 }
 
 while [ "$#" -gt 0 ]; do
@@ -331,12 +341,13 @@ do_format
 do_mount
 do_copy
 install_grub
+create_opt
 
 if [ -n "$INTERACTIVE" ]; then
     exit 0
 fi
 
-if [ "$K3OS_INSTALL_POWER_OFF" = true ] || grep -q 'k3os.mode=install' /proc/cmdline; then
+if [ "$K3OS_INSTALL_POWER_OFF" = true ] || grep -q 'k3os.install.power_off=true' /proc/cmdline; then
     poweroff -f
 else
     echo " * Rebooting system in 5 seconds (CTRL+C to cancel)"
