@@ -9,7 +9,7 @@ TARGETS := $(shell ls scripts)
 
 $(TARGETS): .dapper
 	@rm -rf ./dist ./build
-	@df -h
+	df -h
 	./.dapper $@
 
 .DEFAULT_GOAL := default
