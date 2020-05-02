@@ -35,7 +35,9 @@ build_all()
         docker version
         echo "Finished ${FULL_IMAGE}"
         docker images
-        docker image prune -f --filter label=retention=temporary
+        docker ps -a
+        docker rmi $(docker images -f dangling=true -q)
+        #docker image prune -f --filter label=retention=temporary
         df -h
     done
 }
