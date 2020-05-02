@@ -32,6 +32,9 @@ build_all()
         cd ..
         # We need to conserve space
         df -h
+        docker version
+        echo "Finished ${FULL_IMAGE}"
+        docker images
         docker image prune -f --filter label=retention=temporary
         df -h
     done
