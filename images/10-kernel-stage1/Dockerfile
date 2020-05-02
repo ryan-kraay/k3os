@@ -2,6 +2,8 @@ ARG REPO
 ARG TAG
 FROM ubuntu:focal as builder
 
+LABEL retention=temporary
+
 RUN apt-get --assume-yes update \
  && apt-get --assume-yes install \
     curl \

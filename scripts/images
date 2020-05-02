@@ -32,7 +32,7 @@ build_all()
         cd ..
         # We need to conserve space
         df -h
-        docker image prune -f
+        docker image prune -f --filter label=retention=temporary
         df -h
     done
 }
