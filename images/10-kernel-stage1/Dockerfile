@@ -1,6 +1,6 @@
 ARG REPO
 ARG TAG
-FROM ubuntu:focal
+FROM ubuntu:focal as builder
 
 RUN apt-get --assume-yes update \
  && apt-get --assume-yes install \
@@ -61,3 +61,7 @@ RUN cd /usr/src/root && \
     cp boot/config* /output/config && \
     cp boot/vmlinuz-* /output/vmlinuz && \
     echo ${KVERSION} > /output/version
+
+
+FROM ubuntu:focal 
+COPY --from=builder /output /output
