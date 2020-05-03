@@ -14,5 +14,5 @@ jobs:
       run: |
         apt update
         apt install -y grep coreutils
-	      df -h /* | grep '^[0-9\.]\+G'
+        df -h /* | grep '^[0-9\.]\+G'
         make
