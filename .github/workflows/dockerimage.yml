@@ -12,5 +12,5 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build k3os
       run: |
-        sudo df -h /* | grep '^[0-9\.]\+G'
+        sudo df -h 
         make
