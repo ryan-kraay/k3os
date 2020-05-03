@@ -38,7 +38,7 @@ build_all()
         docker ps -a
         NONE_IMAGES=$(docker images -f dangling=true -q)
         if [ "${NONE_IMAGES}" ]; then
-          docker rmii ${NONE_IMAGES}
+          docker rmi ${NONE_IMAGES}
         fi
         #docker image prune -f --filter label=retention=temporary
         df -h
