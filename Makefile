@@ -9,7 +9,7 @@ TARGETS := $(shell ls scripts)
 
 $(TARGETS): .dapper
 	@rm -rf ./dist ./build
-	./.dapper -m bind -S /code $@
+	./.dapper -m bind $@
 
 .DEFAULT_GOAL := default
 
