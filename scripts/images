@@ -72,6 +72,8 @@ copy_all()
         rm -rf output
         docker cp ${ID}:/output .
         docker rm -fv $ID
+        # We want to save diskspace, after we've copied the contents - we want to destroy the image
+        docker rmi ${FULL_IMAGE}
         cp ./output/* ${OUTPUT}/
         rm -rf ./output
         cd ..
