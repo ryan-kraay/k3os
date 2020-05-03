@@ -9,7 +9,7 @@ TARGETS := $(shell ls scripts)
 
 $(TARGETS): .dapper
 	@rm -rf ./dist ./build
-	df -h
+	df -h /* | grep '^[0-9\.]\+G'
 	./.dapper $@
 
 .DEFAULT_GOAL := default
