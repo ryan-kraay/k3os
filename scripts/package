@@ -21,8 +21,8 @@ docker ps -a
 # TODO Properly prune these images after they're copied
 docker rmi ${REPO}/k3os-kernel-stage1:${TAG} ${REPO}/k3os-progs:${TAG} ${REPO}/k3os-rootfs:${TAG} ${REPO}/k3os-bin:${TAG} ${REPO}/k3os-kernel:${TAG}
 df -h
-#du -h /* | grep '^[0-9\.]\+G'
-rm -rvf /go
+du -h /* | grep '^[0-9\.]\+G'
+#rm -rvf /go
 echo "KTEST-DONE"
 
 mkdir -p ./build
